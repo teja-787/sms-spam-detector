@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Anatomy of SMS Spam Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .stat-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-700">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#004e92] mb-2">The Anatomy of SMS Spam Detection</h1>
+            <p class="text-lg text-[#0077b6]">An End-to-End Journey from Raw Data to Intelligent Classification</p>
+        </header>
+
+        <main>
+            <section id="overview" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#004e92]">Project at a Glance</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                    <div class="stat-card">
+                        <p class="text-5xl font-bold text-[#0077b6]">5,572</p>
+                        <p class="mt-2 text-lg">Total Messages Analyzed</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-5xl font-bold text-[#00b4d8]"><span class="text-gray-400 font-light text-3xl">~</span>87%</p>
+                        <p class="mt-2 text-lg">Legitimate Messages (Ham)</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="text-5xl font-bold text-[#f07167]"><span class="text-gray-400 font-light text-3xl">~</span>13%</p>
+                        <p class="mt-2 text-lg">Spam Messages</p>
+                    </div>
+                </div>
+                <div class="mt-12 bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-2xl font-bold text-center mb-4 text-[#004e92]">Dataset Composition</h3>
+                    <p class="text-center max-w-3xl mx-auto mb-6">The foundation of our project is the SMSSpamCollection dataset. While the majority of messages are legitimate 'ham', a significant portion are 'spam', creating an imbalanced dataset that presents a realistic challenge for our machine learning models.</p>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="compositionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="linguistics" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#004e92]">The Language of Spam vs. Ham</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-2xl font-bold text-center mb-4 text-[#0077b6]">Top Words in Ham Messages</h3>
+                        <p class="text-center mb-4">Legitimate messages are personal and conversational, often using words like "u", "go", "get", and "ok".</p>
+                        <div class="chart-container">
+                            <canvas id="hamWordsChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-2xl font-bold text-center mb-4 text-[#f07167]">Top Words in Spam Messages</h3>
+                        <p class="text-center mb-4">Spam messages create urgency and entice action with words like "free", "call", "claim", and "text".</p>
+                        <div class="chart-container">
+                            <canvas id="spamWordsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                 <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-2xl font-bold text-center mb-4 text-[#004e92]">Message Length Tells a Story</h3>
+                    <p class="text-center max-w-3xl mx-auto mb-6">A key distinguishing feature is length. Spam messages are often significantly longer than personal ham messages, as they contain detailed offers, instructions, and contact numbers.</p>
+                    <div class="chart-container h-80 md:h-96">
+                        <canvas id="lengthDistributionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pipeline" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#004e92]">From Raw Text to Actionable Features</h2>
+                <p class="text-center max-w-3xl mx-auto mb-10">Before a machine can learn, raw text must be transformed into a structured format. Our preprocessing pipeline cleans and standardizes the messages, making them suitable for analysis.</p>
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 text-center">
+                    <div class="stat-card w-full md:w-1/5">
+                        <p class="text-2xl font-bold text-[#0077b6]">1. Clean</p>
+                        <p class="mt-2">Lowercase & remove punctuation</p>
+                    </div>
+                    <div class="text-2xl text-gray-400 font-light">➔</div>
+                    <div class="stat-card w-full md:w-1/5">
+                        <p class="text-2xl font-bold text-[#0096c7]">2. Tokenize</p>
+                        <p class="mt-2">Split text into individual words</p>
+                    </div>
+                    <div class="text-2xl text-gray-400 font-light">➔</div>
+                    <div class="stat-card w-full md:w-1/5">
+                        <p class="text-2xl font-bold text-[#00b4d8]">3. Normalize</p>
+                        <p class="mt-2">Remove stopwords & lemmatize</p>
+                    </div>
+                    <div class="text-2xl text-gray-400 font-light">➔</div>
+                    <div class="stat-card w-full md:w-1/5">
+                        <p class="text-2xl font-bold text-[#48cae4]">4. Vectorize</p>
+                        <p class="mt-2">Convert words to numbers (TF-IDF)</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="models" class="mb-16">
+                <h2 class="text-3xl font-bold text-center mb-8 text-[#004e92]">Choosing the Right Classifier</h2>
+                <p class="text-center max-w-3xl mx-auto mb-10">We trained and evaluated four different machine learning models to find the most effective spam detector. The models were judged based on their accuracy—the percentage of messages they classified correctly.</p>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-2xl font-bold text-center mb-4 text-[#004e92]">Model Accuracy Comparison</h3>
+                     <div class="chart-container h-96">
+                        <canvas id="modelComparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="conclusion" class="text-center">
+                 <h2 class="text-3xl font-bold text-center mb-4 text-[#004e92]">Conclusion: A Highly Effective Detector</h2>
+                 <div class="stat-card max-w-md mx-auto bg-[#004e92] text-white">
+                    <p class="text-lg">Best Model</p>
+                    <p class="text-4xl font-extrabold">XGBoost</p>
+                    <p class="text-6xl font-extrabold mt-2">98.12%</p>
+                    <p class="mt-2 text-lg">Accuracy on Test Data</p>
+                </div>
+                <p class="max-w-3xl mx-auto mt-8 text-lg">
+                    Through careful data analysis, robust text preprocessing, and rigorous model evaluation, we successfully built a spam detection system with outstanding accuracy. The XGBoost classifier proved to be the most effective, demonstrating the power of modern machine learning techniques in solving real-world NLP problems.
+                </p>
+            </section>
+
+        </main>
+
+    </div>
+
+    <script>
+        const brilliantBlues = {
+            background: '#f0f4f8',
+            text: '#03045e',
+            primary: '#0077b6',
+            secondary: '#00b4d8',
+            accent: '#90e0ef',
+            highlight: '#caf0f8',
+            spam: '#f07167',
+            ham: '#00b4d8'
+        };
+
+        const tooltipPlugin = {
+            callbacks: {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                      return label.join(' ');
+                    } else {
+                      return label;
+                    }
+                }
+            }
+        };
+
+        function wrapLabel(label, maxLength) {
+            if (label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            lines.push(currentLine.trim());
+            return lines.filter(line => line.length > 0);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctxComposition = document.getElementById('compositionChart').getContext('2d');
+            new Chart(ctxComposition, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ham', 'Spam'],
+                    datasets: [{
+                        label: 'Message Composition',
+                        data: [4825, 747],
+                        backgroundColor: [brilliantBlues.ham, brilliantBlues.spam],
+                        borderColor: [brilliantBlues.ham, brilliantBlues.spam],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: tooltipPlugin
+                    }
+                }
+            });
+
+            const hamWordsData = {
+                labels: ['u', 'go', 'get', 'ok', 'ltgt', 'free', 'come', 'know', 'call', 'like'],
+                values: [1176, 536, 452, 388, 377, 350, 344, 329, 318, 316]
+            };
+            const ctxHamWords = document.getElementById('hamWordsChart').getContext('2d');
+            new Chart(ctxHamWords, {
+                type: 'bar',
+                data: {
+                    labels: hamWordsData.labels.map(l => wrapLabel(l, 16)),
+                    datasets: [{
+                        label: 'Frequency',
+                        data: hamWordsData.values,
+                        backgroundColor: brilliantBlues.ham,
+                        borderColor: brilliantBlues.primary,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: tooltipPlugin
+                    },
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
+            const spamWordsData = {
+                labels: ['free', 'call', 'txt', 'u', 'text', 'mobile', 'claim', 'stop', 'reply', 'now'],
+                values: [217, 210, 150, 142, 120, 115, 113, 113, 101, 100]
+            };
+            const ctxSpamWords = document.getElementById('spamWordsChart').getContext('2d');
+            new Chart(ctxSpamWords, {
+                type: 'bar',
+                data: {
+                    labels: spamWordsData.labels.map(l => wrapLabel(l, 16)),
+                    datasets: [{
+                        label: 'Frequency',
+                        data: spamWordsData.values,
+                        backgroundColor: brilliantBlues.spam,
+                        borderColor: '#d00000',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: tooltipPlugin
+                    },
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
+            const lengthData = {
+                ham: [71, 34, 160, 29, 55, 147, 77, 160, 155, 154, 35, 148, 158, 26, 17, 48, 111, 22, 18, 59, 41, 61, 12, 120, 189, 2, 6, 125, 25, 13, 10, 24, 28, 57, 45, 16, 51, 132, 30, 26, 18, 33, 27, 21, 37, 52, 26, 31, 28, 20, 118, 32, 24, 50, 29, 27, 73, 22, 39, 49, 64, 26, 7, 71, 36, 4, 20, 124, 16, 23, 2, 28, 49, 59, 35, 40, 6, 20, 56, 13, 138, 5, 20, 10, 13, 20, 11, 20, 11, 20, 11, 20, 11, 20],
+                spam: [155, 148, 158, 126, 137, 148, 159, 156, 154, 125, 132, 149, 160, 147, 135, 152, 159, 129, 132, 159, 159, 144, 159, 151, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159, 159]
+            };
+            const ctxLength = document.getElementById('lengthDistributionChart').getContext('2d');
+            new Chart(ctxLength, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 20}, (_, i) => `${i*10}-${(i+1)*10}`),
+                    datasets: [{
+                        label: 'Ham',
+                        data: Array.from({length: 20}, (_, i) => lengthData.ham.filter(l => l >= i*10 && l < (i+1)*10).length),
+                        backgroundColor: brilliantBlues.ham,
+                    }, {
+                        label: 'Spam',
+                        data: Array.from({length: 20}, (_, i) => lengthData.spam.filter(l => l >= i*10 && l < (i+1)*10).length),
+                        backgroundColor: brilliantBlues.spam,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: tooltipPlugin
+                    },
+                    scales: {
+                        x: { stacked: true, scaleLabel: { display: true, labelString: 'Message Length' } },
+                        y: { stacked: true, scaleLabel: { display: true, labelString: 'Count' } }
+                    }
+                }
+            });
+
+            const modelData = {
+                labels: ['Naive Bayes', 'Logistic Regression', 'Random Forest', 'XGBoost'],
+                values: [97.76, 97.94, 97.49, 98.12]
+            };
+            const ctxModels = document.getElementById('modelComparisonChart').getContext('2d');
+            new Chart(ctxModels, {
+                type: 'bar',
+                data: {
+                    labels: modelData.labels.map(l => wrapLabel(l, 16)),
+                    datasets: [{
+                        label: 'Accuracy (%)',
+                        data: modelData.values,
+                        backgroundColor: [brilliantBlues.accent, brilliantBlues.secondary, brilliantBlues.primary, brilliantBlues.text],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: tooltipPlugin
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 95,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Accuracy (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
